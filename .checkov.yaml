@@ -1,0 +1,17 @@
+# Checkov configuration, picked up automatically when `checkov` runs from the
+# repository root. Restricts the run to the three custom policies in
+# policies/checkov so the output shows what this starter adds, not the whole
+# built-in catalogue. Remove the `check:` list to run everything.
+directory:
+  - terraform/example
+external-checks-dir:
+  - policies/checkov
+framework:
+  - terraform
+check:
+  - CKV2_CUSTOM_1
+  - CKV2_CUSTOM_2
+  - CKV2_CUSTOM_3
+soft-fail: true
+compact: true
+download-external-modules: false

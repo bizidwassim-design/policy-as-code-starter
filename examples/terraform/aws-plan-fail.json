@@ -1,0 +1,193 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.9.5",
+  "_comment": "Hand-written to mirror terraform/example/aws/main.tf (the *_bad resources). Expected findings: s3_blob_public_access_blocked 3, storage_encryption_required 2, security_group_no_open_admin_ports 3. The deleted legacy volume is ignored.",
+  "resource_changes": [
+    {
+      "address": "aws_s3_bucket.logs_bad",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "logs_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {"bucket": "northwind-logs-dev", "force_destroy": false, "tags": null},
+        "after_unknown": {"id": true, "arn": true, "acl": true}
+      }
+    },
+    {
+      "address": "aws_s3_bucket_public_access_block.logs_bad",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "logs_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "bucket": "northwind-logs-dev",
+          "block_public_acls": true,
+          "block_public_policy": false,
+          "ignore_public_acls": true,
+          "restrict_public_buckets": true
+        },
+        "after_unknown": {"id": true}
+      }
+    },
+    {
+      "address": "aws_s3_bucket.exports_bad",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "exports_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {"bucket": "northwind-exports-dev", "force_destroy": true, "tags": null},
+        "after_unknown": {"id": true, "arn": true, "acl": true}
+      }
+    },
+    {
+      "address": "aws_s3_bucket_acl.exports_bad",
+      "mode": "managed",
+      "type": "aws_s3_bucket_acl",
+      "name": "exports_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {"bucket": "northwind-exports-dev", "acl": "public-read"},
+        "after_unknown": {"id": true}
+      }
+    },
+    {
+      "address": "aws_ebs_volume.data_bad",
+      "mode": "managed",
+      "type": "aws_ebs_volume",
+      "name": "data_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {"availability_zone": "eu-west-1a", "size": 100, "type": "gp3", "encrypted": false, "tags": null},
+        "after_unknown": {"id": true, "arn": true}
+      }
+    },
+    {
+      "address": "aws_db_instance.orders_bad",
+      "mode": "managed",
+      "type": "aws_db_instance",
+      "name": "orders_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "identifier": "northwind-orders-dev",
+          "engine": "postgres",
+          "instance_class": "db.t4g.micro",
+          "allocated_storage": 20,
+          "storage_encrypted": false,
+          "publicly_accessible": true,
+          "tags": null
+        },
+        "after_unknown": {"id": true, "arn": true, "address": true}
+      }
+    },
+    {
+      "address": "aws_ebs_volume.legacy",
+      "mode": "managed",
+      "type": "aws_ebs_volume",
+      "name": "legacy",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["delete"],
+        "before": {"availability_zone": "eu-west-1a", "size": 8, "encrypted": false},
+        "after": null,
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_security_group.web_bad",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "web_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "northwind-web-dev",
+          "description": "SSH open to the world",
+          "ingress": [
+            {
+              "description": "SSH",
+              "from_port": 22,
+              "to_port": 22,
+              "protocol": "tcp",
+              "cidr_blocks": ["0.0.0.0/0"],
+              "ipv6_cidr_blocks": [],
+              "security_groups": [],
+              "self": false
+            },
+            {
+              "description": "HTTPS",
+              "from_port": 443,
+              "to_port": 443,
+              "protocol": "tcp",
+              "cidr_blocks": ["0.0.0.0/0"],
+              "ipv6_cidr_blocks": [],
+              "security_groups": [],
+              "self": false
+            }
+          ],
+          "egress": [],
+          "tags": null
+        },
+        "after_unknown": {"id": true, "arn": true, "vpc_id": true}
+      }
+    },
+    {
+      "address": "aws_security_group_rule.rdp_bad",
+      "mode": "managed",
+      "type": "aws_security_group_rule",
+      "name": "rdp_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "type": "ingress",
+          "from_port": 3389,
+          "to_port": 3389,
+          "protocol": "tcp",
+          "cidr_blocks": [],
+          "ipv6_cidr_blocks": ["::/0"],
+          "description": "RDP from anywhere over IPv6"
+        },
+        "after_unknown": {"id": true, "security_group_id": true}
+      }
+    },
+    {
+      "address": "aws_vpc_security_group_ingress_rule.any_bad",
+      "mode": "managed",
+      "type": "aws_vpc_security_group_ingress_rule",
+      "name": "any_bad",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "cidr_ipv4": "0.0.0.0/0",
+          "cidr_ipv6": null,
+          "ip_protocol": "-1",
+          "from_port": null,
+          "to_port": null,
+          "description": "Everything from everywhere"
+        },
+        "after_unknown": {"id": true, "arn": true, "security_group_id": true}
+      }
+    }
+  ]
+}

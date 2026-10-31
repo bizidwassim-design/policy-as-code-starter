@@ -1,0 +1,70 @@
+# UNTESTED — SYNTAX ONLY.
+# This Sentinel policy has been written against the tfplan/v2 import
+# documentation and reviewed by eye. It has NOT been executed with the Sentinel
+# CLI or in HCP Terraform. Run `sentinel test` with your own mocks before use.
+#
+# Purpose: no AWS security group ingress rule may allow SSH (22) or RDP (3389)
+# from 0.0.0.0/0 or ::/0. Mirrors the OPA policy
+# terraform/security_group_no_open_admin_ports.
+#
+# Controls: CIS AWS Foundations Benchmark 5.2 and 5.3 · ISO/IEC 27001:2022 A.8.20 · NIST CSF 2.0 PR.IR-01
+
+import "tfplan/v2" as tfplan
+
+admin_ports = [22, 3389]
+anywhere = ["0.0.0.0/0", "::/0"]
+
+# Resources the plan creates or updates.
+planned = filter tfplan.resource_changes as _, rc {
+	rc.mode is "managed" and
+	(rc.change.actions contains "create" or rc.change.actions contains "update")
+}
+
+security_groups = filter planned as _, rc {
+	rc.type is "aws_security_group"
+}
+
+standalone_rules = filter planned as _, rc {
+	rc.type is "aws_security_group_rule" and rc.change.after.type is "ingress"
+}
+
+# True when the rule's CIDR lists include an "anywhere" range.
+open_to_internet = func(rule) {
+	v4 = rule.cidr_blocks else []
+	v6 = rule.ipv6_cidr_blocks else []
+	return any v4 as c { c in anywhere } or any v6 as c { c in anywhere }
+}
+
+# True when the port range covers an admin port, or the protocol is "all".
+covers_admin_port = func(rule) {
+	if rule.protocol is "-1" {
+		return true
+	}
+	return any admin_ports as p {
+		rule.from_port <= p and p <= rule.to_port
+	}
+}
+
+violating_inline = filter security_groups as _, sg {
+	any sg.change.after.ingress as _, rule {
+		open_to_internet(rule) and covers_admin_port(rule)
+	}
+}
+
+violating_standalone = filter standalone_rules as _, rc {
+	open_to_internet(rc.change.after) and covers_admin_port(rc.change.after)
+}
+
+print_violations = func() {
+	for violating_inline as address, _ {
+		print("DENY:", address, "has an inline ingress rule exposing an admin port to the internet")
+	}
+	for violating_standalone as address, _ {
+		print("DENY:", address, "exposes an admin port to the internet")
+	}
+	return true
+}
+
+main = rule when print_violations() {
+	length(violating_inline) is 0 and length(violating_standalone) is 0
+}

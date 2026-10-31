@@ -1,0 +1,55 @@
+# Passes every Kubernetes policy in policies/opa/kubernetes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-api
+  namespace: orders
+  labels:
+    app.kubernetes.io/name: orders-api
+    app.kubernetes.io/part-of: northwind-platform
+    owner: orders-team
+    environment: prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: orders-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: orders-api
+    spec:
+      initContainers:
+        - name: migrate
+          image: registry.northwind.example/orders/migrate:3.1.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+          resources:
+            limits:
+              cpu: 250m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+      containers:
+        - name: api
+          image: registry.northwind.example/orders/api@sha256:4f2c1c0a7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

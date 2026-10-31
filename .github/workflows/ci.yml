@@ -1,0 +1,44 @@
+name: Policy checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  opa:
+    name: OPA format, unit tests and examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: open-policy-agent/setup-opa@v2
+        with:
+          version: latest
+      - run: opa version
+      - name: Formatting (files listed here need `opa fmt --write`)
+        run: opa fmt --list policies/opa
+      - name: Unit tests
+        run: opa test policies/opa -v
+      - name: Structure checks and expected findings on every example
+        run: |
+          pip install pyyaml
+          python -m py_compile scripts/check_policies.py
+          python scripts/check_policies.py
+
+  checkov:
+    name: Checkov custom policies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install checkov
+      - name: Run the three custom checks against the Terraform examples
+        run: checkov -d terraform/example --external-checks-dir policies/checkov --soft-fail

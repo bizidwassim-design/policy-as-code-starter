@@ -1,0 +1,28 @@
+# Checkov custom policy (YAML graph check, combined conditions).
+# Azure storage accounts must disable anonymous blob access AND require HTTPS.
+# Both attributes must be set explicitly in the source; relying on provider
+# defaults is not accepted.
+#
+# Controls: CIS Azure Foundations Benchmark 3.1 and 3.7 · ISO/IEC 27001:2022 A.8.20 and A.8.24 · NIST CSF 2.0 PR.DS-02
+metadata:
+  id: "CKV2_CUSTOM_3"
+  name: "Ensure Azure storage accounts block public blob access and enforce HTTPS"
+  category: "GENERAL_SECURITY"
+  severity: "HIGH"
+  guideline: "https://github.com/bizidwassim-design/policy-as-code-starter/blob/main/docs/policy-catalogue.md"
+scope:
+  provider: "azure"
+definition:
+  and:
+    - cond_type: "attribute"
+      resource_types:
+        - "azurerm_storage_account"
+      attribute: "allow_nested_items_to_be_public"
+      operator: "equals"
+      value: "false"
+    - cond_type: "attribute"
+      resource_types:
+        - "azurerm_storage_account"
+      attribute: "https_traffic_only_enabled"
+      operator: "equals"
+      value: "true"

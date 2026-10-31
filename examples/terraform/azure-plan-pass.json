@@ -1,0 +1,166 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.9.5",
+  "_comment": "Hand-written to mirror terraform/example/azure/main.tf (the *_good resources). Expected findings: none.",
+  "resource_changes": [
+    {
+      "address": "azurerm_storage_account.data_good",
+      "mode": "managed",
+      "type": "azurerm_storage_account",
+      "name": "data_good",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "northwinddataprod",
+          "account_tier": "Standard",
+          "account_replication_type": "GRS",
+          "allow_nested_items_to_be_public": false,
+          "https_traffic_only_enabled": true,
+          "min_tls_version": "TLS1_2",
+          "tags": {"owner": "data-platform", "environment": "prod"}
+        },
+        "after_unknown": {"id": true, "primary_blob_endpoint": true}
+      }
+    },
+    {
+      "address": "azurerm_storage_container.invoices_good",
+      "mode": "managed",
+      "type": "azurerm_storage_container",
+      "name": "invoices_good",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {"name": "invoices", "container_access_type": "private"},
+        "after_unknown": {"id": true, "storage_account_id": true}
+      }
+    },
+    {
+      "address": "azurerm_managed_disk.data_good",
+      "mode": "managed",
+      "type": "azurerm_managed_disk",
+      "name": "data_good",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "orders-data-prod",
+          "storage_account_type": "Premium_LRS",
+          "create_option": "Empty",
+          "disk_size_gb": 256,
+          "disk_encryption_set_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-northwind-prod/providers/Microsoft.Compute/diskEncryptionSets/des-northwind-prod",
+          "tags": {"owner": "orders-team"}
+        },
+        "after_unknown": {"id": true}
+      }
+    },
+    {
+      "address": "azurerm_mssql_database.orders_good",
+      "mode": "managed",
+      "type": "azurerm_mssql_database",
+      "name": "orders_good",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "orders",
+          "sku_name": "S1",
+          "transparent_data_encryption_enabled": true,
+          "tags": {"owner": "orders-team"}
+        },
+        "after_unknown": {"id": true, "server_id": true}
+      }
+    },
+    {
+      "address": "azurerm_network_security_rule.https_good",
+      "mode": "managed",
+      "type": "azurerm_network_security_rule",
+      "name": "https_good",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "allow-https",
+          "priority": 100,
+          "direction": "Inbound",
+          "access": "Allow",
+          "protocol": "Tcp",
+          "source_port_range": "*",
+          "source_port_ranges": null,
+          "destination_port_range": "443",
+          "destination_port_ranges": null,
+          "source_address_prefix": "Internet",
+          "source_address_prefixes": null,
+          "destination_address_prefix": "*",
+          "destination_address_prefixes": null
+        },
+        "after_unknown": {"id": true}
+      }
+    },
+    {
+      "address": "azurerm_network_security_rule.ssh_good",
+      "mode": "managed",
+      "type": "azurerm_network_security_rule",
+      "name": "ssh_good",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "allow-ssh-corporate",
+          "priority": 110,
+          "direction": "Inbound",
+          "access": "Allow",
+          "protocol": "Tcp",
+          "source_port_range": "*",
+          "source_port_ranges": null,
+          "destination_port_range": "22",
+          "destination_port_ranges": null,
+          "source_address_prefix": "10.20.0.0/16",
+          "source_address_prefixes": null,
+          "destination_address_prefix": "*",
+          "destination_address_prefixes": null
+        },
+        "after_unknown": {"id": true}
+      }
+    },
+    {
+      "address": "azurerm_network_security_group.web_good",
+      "mode": "managed",
+      "type": "azurerm_network_security_group",
+      "name": "web_good",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "nsg-web-prod",
+          "security_rule": [
+            {
+              "name": "deny-rdp",
+              "priority": 4000,
+              "direction": "Inbound",
+              "access": "Deny",
+              "protocol": "Tcp",
+              "source_port_range": "*",
+              "source_port_ranges": [],
+              "destination_port_range": "3389",
+              "destination_port_ranges": [],
+              "source_address_prefix": "*",
+              "source_address_prefixes": [],
+              "destination_address_prefix": "*",
+              "destination_address_prefixes": []
+            }
+          ],
+          "tags": {"owner": "platform-team"}
+        },
+        "after_unknown": {"id": true}
+      }
+    }
+  ]
+}

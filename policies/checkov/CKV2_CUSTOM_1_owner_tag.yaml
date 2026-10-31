@@ -1,0 +1,22 @@
+# Checkov custom policy (YAML graph check).
+# Every core AWS resource must carry an `owner` tag so that findings can be routed
+# to a team. Attribute checks run on the Terraform source (HCL), not on a plan.
+#
+# Controls: ISO/IEC 27001:2022 A.5.9 · NIST CSF 2.0 ID.AM-01
+metadata:
+  id: "CKV2_CUSTOM_1"
+  name: "Ensure core AWS resources carry an owner tag"
+  category: "CONVENTION"
+  severity: "LOW"
+  guideline: "https://github.com/bizidwassim-design/policy-as-code-starter/blob/main/docs/policy-catalogue.md"
+scope:
+  provider: "aws"
+definition:
+  cond_type: "attribute"
+  resource_types:
+    - "aws_s3_bucket"
+    - "aws_ebs_volume"
+    - "aws_db_instance"
+    - "aws_security_group"
+  attribute: "tags.owner"
+  operator: "exists"
