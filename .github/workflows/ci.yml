@@ -19,7 +19,7 @@ jobs:
           python-version: "3.12"
       - uses: open-policy-agent/setup-opa@v2
         with:
-          version: latest
+          version: 1.22.0  # pinned: the version the policies and tests were last run with; bump deliberately
       - run: opa version
       - name: Formatting (files listed here need `opa fmt --write`)
         run: opa fmt --list policies/opa
